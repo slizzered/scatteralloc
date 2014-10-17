@@ -97,17 +97,12 @@ namespace GPUTools
        * The pages init method
        * This method initializes the region on the page which might hold
        * bit fields when the page is used for a small chunk size
-       * @param previous_chunksize the chunksize which was uses for the page before
        */
-      __device__ void init(uint previous_chunksize = 0)
+      __device__ void init()
       {
-        //TODO: we can speed this up for pages being freed, because we know the
-        //chunksize used before (these bits must be zero again) 
-
-        //init the entire data which can hold bitfields 
-        uint max_bits = min(32*32,pagesize/minChunkSize1);
-        uint max_entries = GPUTools::divup<uint>(max_bits/8,sizeof(uint))*sizeof(uint);
-        uint* write = (uint*)(data+(pagesize-max_entries));
+        //clear the entire data which can hold bitfields
+        uint32 first_possible_metadata = 32*HierarchyThreshold;
+        uint32* write = (uint32*)(data+(pagesize-first_possible_metadata));
         while(write < (uint*)(data + pagesize))
           *write++ = 0;
       }
